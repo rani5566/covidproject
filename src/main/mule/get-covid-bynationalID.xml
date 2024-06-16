@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<flow name="get:\cases\(nationId):covid-project-config">
+        <set-variable value="#[%dw 2.0&#10;import * from dw::core::Strings&#10;output json&#10;---&#10;(wrapWith(attributes.uriParams.nationId,&quot;'&quot;))]" doc:name="Set Variable" doc:id="b056be83-82ca-4479-b559-856dc661108a" variableName="nationId"/>
+        <flow-ref doc:name="Flow Reference" doc:id="8765df2f-92f6-4171-9295-fc6be62e513a" name="record-bynationid-subflow"/>
+		<choice doc:name="Choice" doc:id="8b1b23c9-6b21-4375-8277-b956325ed933" >
+			<when expression="#[sizeOf(payload) &gt; 0]">
+				<ee:transform doc:name="Set Success Response" doc:id="f95aff4d-3eea-4405-ad88-4d3c7af57501">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map (covidCase, indexOfCovidCase) -> {
+	caseID: covidCase.case_id,
+    source: covidCase.source,
+    caseType: covidCase.case_type,
+    firstName: covidCase.first_name,
+    lastName: covidCase.last_name,
+    phone: covidCase.phone,
+    email: covidCase.email,
+    dateOfBirth: covidCase.date_of_birth as String {format: "yyyy-MM-dd"},
+    nationalID: covidCase.national_id,
+    nationalIDType: covidCase.national_id_type,
+    address: {
+      streetAddress: covidCase.street_address,
+      city: covidCase.city,
+      state: covidCase.state,
+      postal: covidCase.postal,
+      country: covidCase.country
+    },
+    createDate: covidCase.create_date as String {format: "yyyy-MM-dd"},
+    updateDate: covidCase.update_date as String {format: "yyyy-MM-dd"}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Set Not Found Response" doc:id="e595a651-9e08-4e30-b49e-a6b815923e17" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"code": 404,
+	"message": "Resource not found",
+	"description": "The server has not found anything matching the Request-URI",
+	"dateTime": now() as String { format: "yyyy-MM-dd'T'HH:mm:ss'Z'" },
+	"transactionId": vars.transactionId
+}]]></ee:set-payload>
+					</ee:message>
+					<ee:variables >
+						<ee:set-variable variableName="httpStatus" ><![CDATA[404]]></ee:set-variable>
+					</ee:variables>
+				</ee:transform>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="End Log" doc:id="2c4aabb4-13f6-4a6e-ac5b-fcba7ee251d8" message='flow completed' />
+    
+    </flow>
+	</mule>

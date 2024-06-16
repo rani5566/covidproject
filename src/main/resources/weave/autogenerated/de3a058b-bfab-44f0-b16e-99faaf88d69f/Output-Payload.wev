@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_de3a058b_bfab_44f0_b16e_99faaf88d69f_Output_Payload = Array<{|  CASE_ID: Number,   SOURCE: String,   CASE_TYPE: String,   FIRST_NAME: String,   LAST_NAME: String,   PHONE: String,   EMAIL?: String,   DATE_OF_BIRTH: Date,   NATIONAL_ID: String,   NATIONAL_ID_TYPE: String,   STREET_ADDRESS: String,   CITY: String,   STATE: String,   POSTAL: String,   COUNTRY: String,   CREATE_DATE: Date,   UPDATE_DATE: Date|}>
+

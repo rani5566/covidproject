@@ -15,4 +15,28 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 			<db:input-parameters ><![CDATA[#[vars.incoming]]]></db:input-parameters>
 		</db:insert>
 	</sub-flow>
+	<sub-flow name="record-bynationid-subflow" doc:id="de3a058b-bfab-44f0-b16e-99faaf88d69f" >
+		
+		<logger level="INFO" doc:name="Logger" doc:id="8f003894-3acc-43c5-85ea-0e68f0e1ed0f" message="enter into subflow of nationid cases" />
+		<db:select doc:name="Select Case by NationalID" doc:id="44b2d611-de31-4442-89bb-295f0f809187" config-ref="Database_Config">
+			<db:sql><![CDATA[select case_id, source, case_type, first_name, last_name, phone, email, date_of_birth, national_id, national_id_type, street_address, city, state, postal, country, create_date, update_date from cvd_case_master where national_id = :national_id]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	national_id: vars.nationId
+}]]]></db:input-parameters>
+		</db:select>
+	</sub-flow>
+	<sub-flow name="get-reports-subflow" doc:id="40d76604-b462-4f04-b83b-1db3e2149bf1" >
+		<logger level="INFO" doc:name="Logger" doc:id="b7fa0c6f-a7d2-44db-8cdb-99a630bbc1e1" message="enter into subflow of nationid cases" />
+		<db:select doc:name="Select Case Reports" doc:id="516ddc20-862f-432a-b87a-9f32e7394492" config-ref="Database_Config">
+			<db:sql><![CDATA[#["$(vars.reportsDynamicQuery)"]]]></db:sql>
+		</db:select>
+	</sub-flow>
+	<sub-flow name="update-case-subflow" doc:id="ec792aa5-a8fc-4afe-9b68-67e890cb5d3c" >
+		<logger level="INFO" doc:name="Logger" doc:id="c48b6c9d-b47b-4fa6-9606-02cf7a2f8b93" message="enter into subflow of update cases" />
+		<db:update doc:name="Update Covid Case Master" doc:id="fbfc8fe7-973a-44ed-8488-9795e297fa05" config-ref="Database_Config">
+			<db:sql><![CDATA[update cvd_case_master set source=:source, case_type=:case_type, first_name=:first_name, last_name=:last_name, phone=:phone, email=:email, date_of_birth=TO_DATE(:date_of_birth, 'YYYY-MM-DD'), national_id=:national_id, national_id_type=:national_id_type, street_address=:street_address, city=:city, state=:state, postal=:postal, country=:country, update_date=TO_DATE(:update_date, 'YYYY-MM-DD'), create_by=:create_by, update_by=:update_by where case_id=:case_id]]></db:sql>
+			<db:input-parameters><![CDATA[#[vars.covidCasePayload]]]></db:input-parameters>
+		</db:update>
+	</sub-flow>
+
 </mule>

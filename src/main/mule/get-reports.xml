@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	    <flow name="get:\reports:covid-project-config">
+        <ee:transform doc:name="Prepare DynamicQuery" doc:id="b03e6eb5-fa9a-4ace-a67d-07c4ce7d2df1" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="reportsDynamicQuery" ><![CDATA[if(!isEmpty(attributes.queryParams.state)) (
+	"select count(*) as count, case_type, state from cvd_case_master where state = '" ++ upper(attributes.queryParams.state) ++ "' group by case_type, state"
+) else (
+	"select count(*) as count, case_type, state from cvd_case_master group by case_type, state"
+)]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="Flow Reference" doc:id="12128b91-9ed3-42d0-8065-55d882c1e7a7" name="get-reports-subflow"/>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:name="Prepare Response">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+fun vaccinatedByState(state) = (payload filter(($.STATE == state as String) and ($.CASE_TYPE == "vaccinated")) map {
+	COUNT: $.COUNT
+})[0]
+---
+((payload groupBy($.STATE) mapObject {
+	caseReports: {
+		state: $$,
+		reports: {
+			total: ($.COUNT reduce $ + $$) - (vaccinatedByState($$).COUNT as Number default 0),
+			($ orderBy($.CASE_TYPE) map {
+				($.CASE_TYPE): $.COUNT
+			})
+		}
+	}
+}).*caseReports) default []
+]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    
+</flow></mule>
