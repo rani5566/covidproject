@@ -123,18 +123,7 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
-    <flow name="put:\cases:application\json:covid-project-config">
-        <ee:transform doc:name="Transform Message">
-            <ee:message>
-                <ee:set-payload><![CDATA[%dw 2.0
-output application/json
----
-{
-  caseID: "3673673"
-} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
-    </flow>
+    
     <flow name="get:\reports:covid-project-config">
         <ee:transform doc:name="Transform Message">
             <ee:message>
