@@ -1,0 +1,57 @@
+#%RAML 1.0 DataType
+type: object
+additionalProperties: false
+properties:
+  source:
+    type: string
+    example:
+      "Hospital1"
+  caseType:
+    type: string
+    enum: [positive,recovered,vaccinated,death]
+    example: "positive"
+  firstName:
+    type: string
+    example: "John"
+  lastName:
+    type: string
+    example: "Nixon"
+  phone:
+    type: string
+    pattern: ^[0-9\\-]{12}$
+    example: 986-6535-663
+  email:
+    type: string
+    pattern: ^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$
+    required: false
+    example: john@gmail.com
+  dateOfBirth:
+    type: date-only
+    example: 2024-06-24
+  nationalID:
+    type: string
+    pattern: ^[0-9\\-]{11}$
+    example: 209-49-6193
+  nationalIDType:
+    type: string
+    example: "SSN"
+  address:
+    type: object
+    properties:
+      streetAddress:
+        type: string
+        example: "1600 Pennsylvania Avenue NW"
+      city:
+        type: string
+        example: "washington"
+      state:
+        type: string
+        example: "DC"
+      postal:
+        type: string
+        example: "20500"
+      country:
+        type: string
+        example: USA
+
+

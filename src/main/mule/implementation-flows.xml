@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="b731c6b7-9c15-4d25-9e4b-09ea620fabba" >
+		<db:oracle-connection host="localhost" user="system" password="root" instance="XE" />
+	</db:config>
+	<sub-flow name="create-cases-flowsSub_Flow" doc:id="70903be5-481c-4823-beb9-00c0b31df5e0" >
+		<logger level="INFO" doc:name="Logger" doc:id="4e316887-14ee-4a17-ab94-3577767162ce" message="enter into subflow of create cases"/>
+		<db:insert doc:name="Insert" doc:id="202b6ef9-2ed0-4e1e-9d7e-e2919174e548" config-ref="Database_Config">
+			<db:sql ><![CDATA[insert into cvd_case_master(case_id,source, case_type, first_name, last_name, phone, email, date_of_birth, national_id, national_id_type, street_address, city, state, postal, country, create_date, update_date, create_by, update_by) values(:case_id,:source, :case_type, :first_name, :last_name, :phone, :email, TO_DATE(:date_of_birth, 'YYYY-MM-DD'), :national_id, :national_id_type, :street_address, :city, :state, :postal, :country, TO_DATE(:create_date, 'YYYY-MM-DD'), TO_DATE(:update_date, 'YYYY-MM-DD'), :create_by, :update_by)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[vars.incoming]]]></db:input-parameters>
+		</db:insert>
+	</sub-flow>
+</mule>

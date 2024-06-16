@@ -1,0 +1,77 @@
+#%RAML 1.0
+title: covid-project
+description: the project is about covid cases
+baseUri: https://domain/covid/{version}
+mediaType: 
+- application/json
+protocols: [HTTP,HTTPS]
+version: v1
+types:
+  post-case-request: !include datatypes/post-cases-request-dataType.raml
+  post-case-response: !include datatypes/post-cases-response-dataType.raml
+  common-error-response: !include datatypes/error-type-dataType.raml
+  put-case-request: !include /datatypes/put-case-request-dataType.raml
+  get-nationid: !include datatypes/get-case-nationid-dataType.raml
+  get-reports: !include datatypes/get-reports-dataType.raml
+traits:
+  error: !include traits/common-error-trait.raml
+/cases:
+  post:
+    body:
+      application/json:
+        type: post-case-request
+        example:
+          !include examples/post-case-request-example.json
+    responses:
+      201:
+        body:
+          application/json:
+            type: post-case-response
+            example: !include examples/post-case-response-example.json
+  put:
+    body:
+      application/json:
+        type: put-case-request
+        example: !include examples/put-case-requst-example.json
+    responses:
+      200:
+        body:
+          application/json:
+            type: post-case-response
+            example: !include examples/post-case-response-example.json
+  /{nationId}:
+    uriParameters:
+      nationId:
+        type: string
+    get:
+      is:
+        - error
+      responses:
+        200:
+          body:
+            application/json:
+              type: get-nationid
+              example: !include examples/get-case-nationid-example.json
+/reports:
+  get:
+    is: [error]
+    queryParameters:
+      state?:
+        type: string
+        example: "texas"
+    responses:
+      200:
+        body:
+          application/json:
+            type: get-reports
+            example: !include examples/get-report-example.json
+            
+
+      
+
+        
+      
+
+
+    
+    
